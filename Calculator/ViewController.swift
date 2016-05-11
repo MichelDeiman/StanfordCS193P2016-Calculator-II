@@ -2,7 +2,7 @@
 //  ViewController.swift
 //  Calculator
 //
-//  Created by Michel Deiman on 07/05/16.
+//  Created by Michel Deiman on 11/05/16.
 //  Copyright © 2016 Michel Deiman. All rights reserved.
 //
 
@@ -10,84 +10,41 @@ import UIKit
 
 class ViewController: UIViewController
 {
-	@IBOutlet weak var display: UILabel!
-	@IBOutlet weak var history: UILabel!
+	@IBOutlet private weak var display: UILabel!
 	
-	var userIsInTheMiddleOfTypingANumber = false
-	
-	var brain = CalculatorBrain()
-	
-	@IBAction func appendDigit(sender: UIButton)
-	{	let digit = sender.currentTitle!
-		if userIsInTheMiddleOfTypingANumber
+	private var brain = CalculatorBrain()
+	private var userIsInTheMiddleOfTyping = false
+
+
+	@IBAction private func touchDigit(sender: UIButton) {
+		let digit = sender.currentTitle!
+		if userIsInTheMiddleOfTyping
 		{	display.text = display.text! + digit
 		} else
 		{	display.text = digit
-			userIsInTheMiddleOfTypingANumber = true
+			userIsInTheMiddleOfTyping = true
 		}
-	}
-	
-	@IBAction func backSpace()
-	{	guard userIsInTheMiddleOfTypingANumber else { return }
-		if display.text?.characters.count <= 1
-		{	displayValue = nil
-			userIsInTheMiddleOfTypingANumber = false
-			return
-		}
-		display.text = String(display.text!.characters.dropLast())
-	}
-	
-	@IBAction func clearAll()
-	{	displayValue = nil
-		userIsInTheMiddleOfTypingANumber = false
-		brain.clearStack()
-		history.text = "history"
-	}
-	
-	@IBAction func floatingPoint()
-	{	if display.text?.rangeOfString(".") == nil
-		{	display.text = display.text! + "."
-			userIsInTheMiddleOfTypingANumber = true
-		}
-	}
-	
-	@IBAction func setSign(sender: UIButton)
-	{	if userIsInTheMiddleOfTypingANumber
-		{	displayValue = -1 * displayValue!
-		} else
-		{	operate(sender)
-		}
-	}
-	
-	
-	@IBAction func operate(sender: UIButton)
-	{
-		if userIsInTheMiddleOfTypingANumber
-		{	enter()
-		}
-		let operation = sender.currentTitle!
-		if let result = brain.performOperation(operation)
-		{	history.text = history.text! + "[\(operation)][=]"
-			displayValue = result
-			enter()
-		}
-		
 	}
 
-	var displayValue: Double?
-	{	get
-		{	return NSNumberFormatter().numberFromString(display.text!)?.doubleValue
+	private var displayValue: Double {
+		get {
+			return Double(display.text!)!
 		}
-		set
-		{	display.text = newValue == nil ? "0" : "\(newValue!)"
+		set {
+			display.text = String(newValue)
 		}
 	}
-	
-	@IBAction func enter()
-	{	userIsInTheMiddleOfTypingANumber = false
-		displayValue = brain.pushOperand(displayValue!)
-		history.text = history.text! + "[\(displayValue!)]"
+
+
+	@IBAction private func performOperation(sender: UIButton) {
+		if userIsInTheMiddleOfTyping {
+			brain.setOperand(displayValue)
+			userIsInTheMiddleOfTyping = false
+		}
+		if let mathematicalSymbol = sender.currentTitle {
+			brain.performOperation(mathematicalSymbol)
+		}
+		displayValue = brain.result
 	}
-	
 }
 
