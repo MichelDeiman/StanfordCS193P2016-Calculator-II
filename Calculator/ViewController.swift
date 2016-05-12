@@ -25,6 +25,16 @@ class ViewController: UIViewController
 			userIsInTheMiddleOfTyping = true
 		}
 	}
+	
+	@IBAction func floatingPoint()
+	{	if !userIsInTheMiddleOfTyping {
+			display.text = "0."
+		} else
+		if display.text?.rangeOfString(".") == nil {
+			display.text = display.text! + "."
+		}
+		userIsInTheMiddleOfTyping = true
+	}
 
 	private var displayValue: Double {
 		get {
@@ -34,8 +44,9 @@ class ViewController: UIViewController
 			display.text = String(newValue)
 		}
 	}
+	
+	// 𝑥²   ¹∕𝑥  𝑥³
 
-	// code not needed in assignment
 	var savedProgram: CalculatorBrain.PropertyList?
 	@IBAction func save()
 	{	savedProgram = brain.program
@@ -46,7 +57,6 @@ class ViewController: UIViewController
 		brain.program = savedProgram
 		displayValue = brain.result
 	}
-	//
 
 	@IBAction private func performOperation(sender: UIButton) {
 		if userIsInTheMiddleOfTyping {

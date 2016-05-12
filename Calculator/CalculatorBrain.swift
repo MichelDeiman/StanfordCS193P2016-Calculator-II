@@ -65,6 +65,10 @@ class CalculatorBrain  {
 		}
 	}
 	
+	var isPartialResult: Bool
+	{	return pending != nil
+	}
+	
 	private var pending: PendingBinaryOperationInfo?
 	
 	private struct PendingBinaryOperationInfo {
