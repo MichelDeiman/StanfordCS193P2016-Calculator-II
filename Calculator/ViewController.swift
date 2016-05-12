@@ -35,6 +35,18 @@ class ViewController: UIViewController
 		}
 	}
 
+	// code not needed in assignment
+	var savedProgram: CalculatorBrain.PropertyList?
+	@IBAction func save()
+	{	savedProgram = brain.program
+	}
+	
+	@IBAction func restore()
+	{	guard let savedProgram = savedProgram else { return }
+		brain.program = savedProgram
+		displayValue = brain.result
+	}
+	//
 
 	@IBAction private func performOperation(sender: UIButton) {
 		if userIsInTheMiddleOfTyping {
