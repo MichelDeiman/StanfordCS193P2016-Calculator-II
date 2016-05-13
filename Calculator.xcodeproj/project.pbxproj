@@ -13,7 +13,6 @@
 		EA4B0A011CDE5488003C404F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EA4B0A001CDE5488003C404F /* Assets.xcassets */; };
 		EA4B0A041CDE5488003C404F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EA4B0A021CDE5488003C404F /* LaunchScreen.storyboard */; };
 		EAEA55791CE109E500C5B7CD /* CalculatorBrain.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAEA55781CE109E500C5B7CD /* CalculatorBrain.swift */; };
-		EAEA557B1CE14E8400C5B7CD /* AxesDrawer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAEA557A1CE14E8400C5B7CD /* AxesDrawer.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -25,7 +24,6 @@
 		EA4B0A031CDE5488003C404F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		EA4B0A051CDE5488003C404F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		EAEA55781CE109E500C5B7CD /* CalculatorBrain.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CalculatorBrain.swift; sourceTree = "<group>"; };
-		EAEA557A1CE14E8400C5B7CD /* AxesDrawer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AxesDrawer.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,7 +59,6 @@
 				EA4B09FB1CDE5488003C404F /* ViewController.swift */,
 				EAEA55781CE109E500C5B7CD /* CalculatorBrain.swift */,
 				EA4B09FD1CDE5488003C404F /* Main.storyboard */,
-				EAEA557A1CE14E8400C5B7CD /* AxesDrawer.swift */,
 				EAB3A03C1CE2AB4A0000B886 /* standard files */,
 			);
 			path = Calculator;
@@ -151,7 +148,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				EAEA55791CE109E500C5B7CD /* CalculatorBrain.swift in Sources */,
-				EAEA557B1CE14E8400C5B7CD /* AxesDrawer.swift in Sources */,
 				EA4B09FC1CDE5488003C404F /* ViewController.swift in Sources */,
 				EA4B09FA1CDE5488003C404F /* AppDelegate.swift in Sources */,
 			);

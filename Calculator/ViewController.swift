@@ -13,7 +13,13 @@ class ViewController: UIViewController
 	@IBOutlet private weak var display: UILabel!
 	
 	private var brain = CalculatorBrain()
-	private var userIsInTheMiddleOfTyping = false
+	
+	private var userIsInTheMiddleOfTyping = false {
+		didSet {
+			useInitialNullValueAsOperand = false
+		}
+	}
+	private var useInitialNullValueAsOperand = true
 
 
 	@IBAction private func touchDigit(sender: UIButton) {
@@ -36,37 +42,50 @@ class ViewController: UIViewController
 		userIsInTheMiddleOfTyping = true
 	}
 
-	private var displayValue: Double {
+	private var displayValue: Double? {
 		get {
-			return Double(display.text!)!
+			return Double(display.text!)
 		}
 		set {
-			display.text = String(newValue)
+			display.text = numberFormatter.stringFromNumber(newValue ?? 0)
 		}
 	}
-	
-	// 𝑥²   ¹∕𝑥  𝑥³
 
-	var savedProgram: CalculatorBrain.PropertyList?
-	@IBAction func save()
-	{	savedProgram = brain.program
-	}
-	
-	@IBAction func restore()
-	{	guard let savedProgram = savedProgram else { return }
-		brain.program = savedProgram
+	@IBAction func clearAll()
+	{	brain.clear()
 		displayValue = brain.result
+		useInitialNullValueAsOperand = true
+	}
+	
+	@IBAction func backSpace()
+	{	guard userIsInTheMiddleOfTyping else { return }
+		if display.text?.characters.count <= 1
+		{	displayValue = nil
+			userIsInTheMiddleOfTyping = false
+			return
+		}
+		display.text = String(display.text!.characters.dropLast())
 	}
 
-	@IBAction private func performOperation(sender: UIButton) {
-		if userIsInTheMiddleOfTyping {
-			brain.setOperand(displayValue)
+	@IBAction private func performOperation(sender: UIButton) {		
+		if userIsInTheMiddleOfTyping || useInitialNullValueAsOperand {
+			brain.setOperand(displayValue!)
 			userIsInTheMiddleOfTyping = false
 		}
-		if let mathematicalSymbol = sender.currentTitle {
-			brain.performOperation(mathematicalSymbol)
-		}
+		let mathematicalSymbol = sender.currentTitle
+		brain.performOperation(mathematicalSymbol!)
 		displayValue = brain.result
+	}
+	
+	var numberFormatter = NSNumberFormatter()
+			
+	override func viewDidLoad() {
+		super.viewDidLoad()
+		numberFormatter.alwaysShowsDecimalSeparator = false
+		numberFormatter.maximumFractionDigits = 6
+		numberFormatter.minimumFractionDigits = 0
+		numberFormatter.minimumIntegerDigits = 1
+		brain.numberFormatter = numberFormatter
 	}
 }
 
