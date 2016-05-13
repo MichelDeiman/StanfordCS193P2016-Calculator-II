@@ -6,6 +6,18 @@
 //  Copyright © 2016 Michel Deiman. All rights reserved.
 //
 
+//@IBAction func save()
+//{	savedProgram = brain.program
+//}
+//
+//@IBAction func restore()
+//{	guard let savedProgram = savedProgram else { return }
+//	brain.program = savedProgram
+//	displayValue = brain.result
+//}
+
+
+
 import Foundation
 
 class CalculatorBrain  {
