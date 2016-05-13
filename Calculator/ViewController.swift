@@ -33,7 +33,7 @@ class ViewController: UIViewController
 		}
 	}
 	
-	@IBAction func floatingPoint()
+	@IBAction private func floatingPoint()
 	{	if !userIsInTheMiddleOfTyping {
 			display.text = "0."
 		} else
@@ -52,13 +52,13 @@ class ViewController: UIViewController
 		}
 	}
 
-	@IBAction func clearAll()
+	@IBAction private func clearAll()
 	{	brain.clear()
 		displayValue = brain.result
 		useInitialNullValueAsOperand = true
 	}
 	
-	@IBAction func backSpace()
+	@IBAction private func backSpace()
 	{	guard userIsInTheMiddleOfTyping else { return }
 		if display.text?.characters.count <= 1
 		{	displayValue = nil
@@ -80,7 +80,7 @@ class ViewController: UIViewController
 		descriptionDisplay.text = brain.description + postfixDescription
 	}
 	
-	var numberFormatter = NSNumberFormatter()
+	private var numberFormatter = NSNumberFormatter()
 			
 	override func viewDidLoad() {
 		super.viewDidLoad()
