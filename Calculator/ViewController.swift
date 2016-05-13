@@ -11,6 +11,7 @@ import UIKit
 class ViewController: UIViewController
 {
 	@IBOutlet private weak var display: UILabel!
+	@IBOutlet weak var descriptionDisplay: UILabel!
 	
 	private var brain = CalculatorBrain()
 	
@@ -75,6 +76,8 @@ class ViewController: UIViewController
 		let mathematicalSymbol = sender.currentTitle
 		brain.performOperation(mathematicalSymbol!)
 		displayValue = brain.result
+		let postfixDescription = brain.isPartialResult ? "..." : "="
+		descriptionDisplay.text = brain.description + postfixDescription
 	}
 	
 	var numberFormatter = NSNumberFormatter()

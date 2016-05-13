@@ -21,6 +21,7 @@ class CalculatorBrain  {
 		internalProgram.append(operand)
 	}
 	
+	
 	private var operations: [String: Operation] = [
 		"×"		: Operation.BinaryOperation(*),
 		"÷"		: Operation.BinaryOperation(/),  // { $0 / $1 },
