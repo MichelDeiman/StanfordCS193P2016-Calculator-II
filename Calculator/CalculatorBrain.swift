@@ -102,6 +102,27 @@ class CalculatorBrain  {
 		var firstOperand: Double
 	}
 	
+		typealias PropertyList = AnyObject
+		var program: PropertyList
+		{	get
+			{	return internalProgram
+			}
+			set
+			{	clear()
+				guard let propertyList = newValue as? [AnyObject]
+				else { return }
+				for property in propertyList
+				{	if let operand = property as? Double
+					{	setOperand(operand)
+					}
+					else if let operation = property as? String
+					{	performOperation(operation)
+					}
+				}
+			}
+		}
+
+	
 	var numberFormatter: NSNumberFormatter?
 	
 	var description: String {
