@@ -42,6 +42,40 @@ class ViewController: UIViewController
 		}
 		userIsInTheMiddleOfTyping = true
 	}
+	
+	@IBAction private func backSpace()
+	{	guard userIsInTheMiddleOfTyping else {
+			brain.undoLast()
+			displayValue = brain.result
+			return
+		}
+		if display.text?.characters.count <= 1
+		{	displayValue = nil
+			return
+		}
+		display.text = String(display.text!.characters.dropLast())
+	}
+	
+	@IBAction private func setValueForKey()
+	{	let key = "M"
+		brain.variableValues[key] = displayValue!
+		displayValue = brain.result
+	}
+	
+	@IBAction private func processConstant(sender: UIButton)
+	{	let symbol = sender.currentTitle
+		brain.setOperand(symbol!)
+		displayValue = brain.result
+	}
+
+	@IBAction private func performOperation(sender: UIButton) {
+		if userIsInTheMiddleOfTyping || useInitialNullValueAsOperand {
+			brain.setOperand(displayValue!)
+		}
+		let symbol = sender.currentTitle
+		brain.performOperation(symbol!)
+		displayValue = brain.result
+	}
 
 	private var displayValue: Double? {
 		get {
@@ -49,35 +83,17 @@ class ViewController: UIViewController
 		}
 		set {
 			display.text = numberFormatter.stringFromNumber(newValue ?? 0)
+			let postfixDescription = brain.isPartialResult ? "..." : "="
+			descriptionDisplay.text = brain.description + postfixDescription
+			userIsInTheMiddleOfTyping = false
 		}
 	}
 
 	@IBAction private func clearAll()
-	{	brain.clear()
+	{	brain.reset()
 		displayValue = brain.result
+		descriptionDisplay.text = brain.description
 		useInitialNullValueAsOperand = true
-	}
-	
-	@IBAction private func backSpace()
-	{	guard userIsInTheMiddleOfTyping else { return }
-		if display.text?.characters.count <= 1
-		{	displayValue = nil
-			userIsInTheMiddleOfTyping = false
-			return
-		}
-		display.text = String(display.text!.characters.dropLast())
-	}
-
-	@IBAction private func performOperation(sender: UIButton) {		
-		if userIsInTheMiddleOfTyping || useInitialNullValueAsOperand {
-			brain.setOperand(displayValue!)
-			userIsInTheMiddleOfTyping = false
-		}
-		let mathematicalSymbol = sender.currentTitle
-		brain.performOperation(mathematicalSymbol!)
-		displayValue = brain.result
-		let postfixDescription = brain.isPartialResult ? "..." : "="
-		descriptionDisplay.text = brain.description + postfixDescription
 	}
 	
 	private var numberFormatter = NSNumberFormatter()
