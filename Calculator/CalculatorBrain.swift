@@ -9,11 +9,10 @@
 import Foundation
 class CalculatorBrain  {
 
-	func undoLast()
-	{	if !internalProgram.isEmpty {
-			internalProgram.removeLast()
-			program = internalProgram
-		}
+	func undoLast() {
+		guard !internalProgram.isEmpty  else { return }
+		internalProgram.removeLast()
+		program = internalProgram
 	}
 	
 	func setOperand(operand: Double) {
@@ -134,11 +133,8 @@ class CalculatorBrain  {
 		return accumulator
 	}
 	
-	private var accumulator = 0.0 {
-		didSet {
-			
-		}
-	}
+	private var accumulator = 0.0
+	
 	private var internalProgram = [AnyObject]()
 
 	private var operations: [String: Operation] = [
