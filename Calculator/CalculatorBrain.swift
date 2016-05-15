@@ -187,13 +187,11 @@ class CalculatorBrain  {
 		var firstOperand: Double
 	}
 
-	private func executePendingBinaryOperation() -> Bool
+	private func executePendingBinaryOperation()
 	{	if let pending = pending {
 			accumulator = pending.binaryFunction(pending.firstOperand, accumulator)
 			self.pending = nil
-			return true
 		}
-		return false
 	}
 	
 }
