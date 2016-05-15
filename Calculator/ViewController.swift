@@ -15,13 +15,7 @@ class ViewController: UIViewController
 	
 	private var brain = CalculatorBrain()
 	
-	private var userIsInTheMiddleOfTyping = false {
-		didSet {
-			useInitialNullValueAsOperand = false
-		}
-	}
-	private var useInitialNullValueAsOperand = true
-
+	private var userIsInTheMiddleOfTyping = false
 
 	@IBAction private func touchDigit(sender: UIButton) {
 		let digit = sender.currentTitle!
@@ -34,7 +28,8 @@ class ViewController: UIViewController
 	}
 	
 	@IBAction private func floatingPoint()
-	{	if !userIsInTheMiddleOfTyping {
+	{
+		if !userIsInTheMiddleOfTyping {
 			display.text = "0."
 		} else
 		if display.text?.rangeOfString(".") == nil {
@@ -49,11 +44,11 @@ class ViewController: UIViewController
 			displayValue = brain.result
 			return
 		}
-		if display.text?.characters.count <= 1
-		{	displayValue = nil
-			return
+		if display.text?.characters.count > 1 {
+			display.text = String(display.text!.characters.dropLast())
+		} else {
+			displayValue = nil
 		}
-		display.text = String(display.text!.characters.dropLast())
 	}
 	
 	@IBAction private func setValueForKey()
@@ -69,7 +64,7 @@ class ViewController: UIViewController
 	}
 
 	@IBAction private func performOperation(sender: UIButton) {
-		if userIsInTheMiddleOfTyping || useInitialNullValueAsOperand {
+		if userIsInTheMiddleOfTyping {
 			brain.setOperand(displayValue!)
 		}
 		let symbol = sender.currentTitle
@@ -92,8 +87,6 @@ class ViewController: UIViewController
 	@IBAction private func clearAll()
 	{	brain.reset()
 		displayValue = brain.result
-		descriptionDisplay.text = brain.description
-		useInitialNullValueAsOperand = true
 	}
 	
 	private var numberFormatter = NSNumberFormatter()

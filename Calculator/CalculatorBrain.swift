@@ -16,15 +16,25 @@ class CalculatorBrain  {
 	}
 	
 	func setOperand(operand: Double) {
-		if pending == nil { clear() }
 		accumulator = operand
+		if pending == nil { clear() }
+		else { executePendingBinaryOperation() }
 		internalProgram.append(operand)
 	}
 	
 	func setOperand(variableName: String) {
-		let value = variableValues[variableName] ?? 0.0
+		var operandValue = 0.0
+		if let operation = operations[variableName] {
+			switch operation {
+			case .Constant(let value):
+				operandValue = value
+			case .Variable(let value):
+				operandValue = value
+			default: break
+			}
+		}
 		if pending == nil { clear() }
-		accumulator = value
+		accumulator = operandValue
 		internalProgram.append(variableName)
 	}
 	
@@ -43,21 +53,21 @@ class CalculatorBrain  {
 	func performOperation(symbol: String) {
 		if let operation = operations[symbol]
 		{	switch operation {
-			case .Constant(let value):
-				if pending == nil {	clear() }
-				accumulator = value
-			case .Variable(let value):
-				if pending == nil {	clear() }
-				accumulator = value
-			case .UnaryOperation(_, let f):
-				accumulator = f(accumulator)
-			case .BinaryOperation(let f):
-				executePendingBinaryOperation()
-				pending = PendingBinaryOperationInfo(binaryFunction: f, firstOperand: accumulator)
-			case .Equals:
-				executePendingBinaryOperation()
+			case .Constant, .Variable:
+				setOperand(symbol)
+			default:
+				if pending != nil { undoLast() }
+				switch operation {
+				case .UnaryOperation(_, let f):
+					accumulator = f(accumulator)
+					internalProgram.append(symbol)
+				case .BinaryOperation(let f):
+					pending = PendingBinaryOperationInfo(binaryFunction: f, firstOperand: accumulator)
+					internalProgram.append(symbol)
+				default:
+					pending = nil
+				}
 			}
-			internalProgram.append(symbol)
 		}
 	}
 	
@@ -119,13 +129,14 @@ class CalculatorBrain  {
 	}
 	
 	func clear() {
-		accumulator = 0.0
 		pending = nil
 		internalProgram = []
 	}
 	
 	func reset() {
-		clear()
+		pending = nil
+		accumulator = 0.0
+		internalProgram = [accumulator]
 		variableValues = [:]
 	}
 	
@@ -176,11 +187,13 @@ class CalculatorBrain  {
 		var firstOperand: Double
 	}
 
-	private func executePendingBinaryOperation()
+	private func executePendingBinaryOperation() -> Bool
 	{	if let pending = pending {
-		accumulator = pending.binaryFunction(pending.firstOperand, accumulator)
-		self.pending = nil
+			accumulator = pending.binaryFunction(pending.firstOperand, accumulator)
+			self.pending = nil
+			return true
 		}
+		return false
 	}
 	
 }
