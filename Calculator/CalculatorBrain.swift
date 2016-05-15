@@ -8,17 +8,13 @@
 
 import Foundation
 class CalculatorBrain  {
-
-	func undoLast() {
-		guard !internalProgram.isEmpty  else { return }
-		internalProgram.removeLast()
-		program = internalProgram
-	}
 	
+	////////////////////////  Private methods and properties
+
 	func setOperand(operand: Double) {
 		accumulator = operand
-		if pending == nil { clear() }
-		else { executePendingBinaryOperation() }
+		if pending == nil { internalProgram = [] }
+		pending?.secondOperandIsSet = true
 		internalProgram.append(operand)
 	}
 	
@@ -30,12 +26,76 @@ class CalculatorBrain  {
 				operandValue = value
 			case .Variable(let value):
 				operandValue = value
+			case .Formula(let f):
+				operandValue = f()
 			default: break
 			}
 		}
-		if pending == nil { clear() }
 		accumulator = operandValue
+		if pending == nil { internalProgram = [] }
+		pending?.secondOperandIsSet = true
 		internalProgram.append(variableName)
+	}
+	
+	func performOperation(symbol: String) {
+		if operations[symbol] == nil {
+			variableValues[symbol] = 0.0
+		}
+		let operation = operations[symbol]!
+		switch operation {
+		case .Constant, .Variable, .Formula:
+			setOperand(symbol)
+		default:
+			if isPartialResult {
+				if pending?.secondOperandIsSet == true {
+					executePendingBinaryOperation()
+				} else {
+					internalProgram.removeLast()
+					pending = nil
+				}
+			}
+			switch operation {
+			case .UnaryOperation(_, let f):
+				accumulator = f(accumulator)
+				internalProgram.append(symbol)
+			case .BinaryOperation(let f):
+				pending = PendingBinaryOperationInfo(binaryFunction: f, firstOperand: accumulator)
+				internalProgram.append(symbol)
+			default:
+				break
+			}
+		}
+	}
+	
+	func undoLast() {
+		guard !internalProgram.isEmpty  else { return }
+		internalProgram.removeLast()
+		program = internalProgram
+	}
+	
+	var isPartialResult: Bool
+	{	return pending != nil
+	}
+
+	typealias PropertyList = AnyObject
+	var program: PropertyList
+	{	get
+		{	return internalProgram
+		}
+		set
+		{	pending = nil
+			internalProgram = []
+			guard let propertyList = newValue as? [AnyObject]
+			else { return }
+			for property in propertyList
+			{	if let operand = property as? Double
+				{	setOperand(operand)
+				}
+				else if let operation = property as? String
+				{	performOperation(operation)
+				}
+			}
+		}
 	}
 	
 	var variableValues = [String: Double]() {
@@ -50,74 +110,26 @@ class CalculatorBrain  {
 		}
 	}
 	
-	func performOperation(symbol: String) {
-		if let operation = operations[symbol]
-		{	switch operation {
-			case .Constant, .Variable:
-				setOperand(symbol)
-			default:
-				if pending != nil { undoLast() }
-				switch operation {
-				case .UnaryOperation(_, let f):
-					accumulator = f(accumulator)
-					internalProgram.append(symbol)
-				case .BinaryOperation(let f):
-					pending = PendingBinaryOperationInfo(binaryFunction: f, firstOperand: accumulator)
-					internalProgram.append(symbol)
-				default:
-					pending = nil
-				}
-			}
-		}
-	}
-	
-	var isPartialResult: Bool
-	{	return pending != nil
-	}
-
-	typealias PropertyList = AnyObject
-	var program: PropertyList
-	{	get
-		{	return internalProgram
-		}
-		set
-		{	clear()
-			guard let propertyList = newValue as? [AnyObject]
-			else { return }
-			for property in propertyList
-			{	if let operand = property as? Double
-				{	setOperand(operand)
-				}
-				else if let operation = property as? String
-				{	performOperation(operation)
-				}
-			}
-		}
-	}
-	
-	var numberFormatter: NSNumberFormatter?
-	
 	var description: String {
 		var targetString = String()
 		for property in internalProgram
 		{	if let operand = property as? Double {
-				let stringToAppend = numberFormatter?.stringFromNumber(operand) ?? String(operand)
-				targetString = targetString + stringToAppend
+				targetString += numberFormatter?.stringFromNumber(operand) ?? String(operand)
+				
 			}
 			else if let symbol = property as? String
 			{	if let operation = operations[symbol]
 				{	switch operation {
-					case .Constant, .Variable, .BinaryOperation:
-						targetString = targetString + symbol
-					case .UnaryOperation(let printSymbol, _):
-						switch printSymbol {
+					case .UnaryOperation(let printOrder, _):
+						switch printOrder {
 						case .Postfix(let symbol):
 							targetString = "(" + targetString + ")" + symbol
 						case .Prefix(let symbol):
 							targetString = symbol + "(" + targetString + ")"
 						}
-					case .Equals:
-						break
+					case .Equals: break
+					default:
+						targetString = targetString + symbol
 					}
 				}
 				else {
@@ -126,11 +138,6 @@ class CalculatorBrain  {
 			}
 		}
 		return targetString
-	}
-	
-	func clear() {
-		pending = nil
-		internalProgram = []
 	}
 	
 	func reset() {
@@ -143,10 +150,12 @@ class CalculatorBrain  {
 	var result: Double {
 		return accumulator
 	}
+	var numberFormatter: NSNumberFormatter?
+	
+	////////////////////////  Private methods and properties
 	
 	private var accumulator = 0.0
-	
-	private var internalProgram = [AnyObject]()
+	private var internalProgram : [AnyObject] = [0.0]
 
 	private var operations: [String: Operation] = [
 		"×"		: Operation.BinaryOperation(*),
@@ -156,12 +165,12 @@ class CalculatorBrain  {
 		"√"		: Operation.UnaryOperation(.Prefix("√"), sqrt),
 		"¹∕ⅹ"	: Operation.UnaryOperation(.Postfix("⁻¹")) { 1/$0 },
 		"x²"	: Operation.UnaryOperation(.Postfix("²")) { $0 * $0 },
-		"Rand"	: Operation.Constant(drand48()),
 		"%"		: Operation.UnaryOperation(.Postfix("%")) { $0 / 100 },
 		"sin"	: Operation.UnaryOperation(.Prefix("sin"), sin),
 		"cos"	: Operation.UnaryOperation(.Prefix("cos"), cos),
 		"tan"	: Operation.UnaryOperation(.Prefix("tan"), tan),
-		"±"		: Operation.UnaryOperation(.Postfix("x -1")) { -$0 },
+		"±"		: Operation.UnaryOperation(.Postfix("-")) { -$0 },
+		"Rand"	: Operation.Formula(drand48),
 		"π"		: Operation.Constant(M_PI),
 		"e"		: Operation.Constant(M_E),
 		"="		: Operation.Equals
@@ -170,11 +179,12 @@ class CalculatorBrain  {
 	private enum Operation //: CustomStringConvertible
 	{	case Constant(Double)
 		case Variable(Double)
-		case UnaryOperation(PrintSymbol, Double -> Double)
+		case Formula(()->Double)
+		case UnaryOperation(PrintInfo, Double -> Double)
 		case BinaryOperation((Double, Double) -> Double)
 		case Equals
 		
-		enum PrintSymbol {
+		enum PrintInfo {
 			case Prefix(String)
 			case Postfix(String)
 		}
@@ -185,6 +195,13 @@ class CalculatorBrain  {
 	private struct PendingBinaryOperationInfo {
 		var binaryFunction: (Double, Double) -> Double
 		var firstOperand: Double
+		var secondOperandIsSet: Bool
+		
+		init(binaryFunction: (Double, Double) -> Double, firstOperand: Double, secondOperandIsSet: Bool = false)
+		{	self.binaryFunction = binaryFunction
+			self.firstOperand = firstOperand
+			self.secondOperandIsSet = secondOperandIsSet
+		}
 	}
 
 	private func executePendingBinaryOperation()
@@ -193,5 +210,4 @@ class CalculatorBrain  {
 			self.pending = nil
 		}
 	}
-	
 }

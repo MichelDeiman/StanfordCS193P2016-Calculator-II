@@ -14,7 +14,6 @@ class ViewController: UIViewController
 	@IBOutlet weak var descriptionDisplay: UILabel!
 	
 	private var brain = CalculatorBrain()
-	
 	private var userIsInTheMiddleOfTyping = false
 
 	@IBAction private func touchDigit(sender: UIButton) {
@@ -39,27 +38,21 @@ class ViewController: UIViewController
 	}
 	
 	@IBAction private func backSpace()
-	{	guard userIsInTheMiddleOfTyping else {
+	{	if !userIsInTheMiddleOfTyping  {
 			brain.undoLast()
 			displayValue = brain.result
-			return
-		}
-		if display.text?.characters.count > 1 {
-			display.text = String(display.text!.characters.dropLast())
-		} else {
-			displayValue = nil
+		} else
+		{	if display.text?.characters.count > 1 {
+				display.text = String(display.text!.characters.dropLast())
+			} else {
+				displayValue = nil
+			}
 		}
 	}
 	
-	@IBAction private func setValueForKey()
-	{	let key = "M"
+	@IBAction private func setValueForKey() {
+		let key = "M"
 		brain.variableValues[key] = displayValue!
-		displayValue = brain.result
-	}
-	
-	@IBAction private func processConstant(sender: UIButton)
-	{	let symbol = sender.currentTitle
-		brain.setOperand(symbol!)
 		displayValue = brain.result
 	}
 
